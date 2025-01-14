@@ -1,10 +1,9 @@
 import streamlit as st
-from langchain.chat_models.openai import ChatOpenAI
-from langchain.embeddings import OpenAIEmbeddings
 from langchain.storage import LocalFileStore
 from langchain.embeddings import CacheBackedEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.document_loaders import UnstructuredFileLoader
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_community.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -29,20 +28,33 @@ class ChatCallbackHandler(BaseCallbackHandler):
 if "openai_api" not in st.session_state:
     st.session_state["openai_api"] = ""
 
-llm = ChatOpenAI(
-    temperature=0.1,
-    model="gpt-3.5-turbo-0125",
-    streaming=True,
-    callbacks=[ChatCallbackHandler()],
-    api_key=st.session_state["openai_api"],
-)
 
-memory_llm = ChatOpenAI(
-    temperature=0.1,
-    model="gpt-3.5-turbo-0125",
-    api_key=st.session_state["openai_api"],
-)
+@st.cache_resource(show_spinner="LLM 연결중(1)...")
+def generate_llm(api_key):
+    llm = ChatOpenAI(
+        temperature=0.1,
+        model="gpt-3.5-turbo-0125",
+        streaming=True,
+        callbacks=[ChatCallbackHandler()],
+        api_key=api_key,
+    )
+    return llm
 
+@st.cache_resource(show_spinner="LLM 연결중(2)...")
+def generate_memory_llm(api_key):
+    memory_llm = ChatOpenAI(
+        temperature=0.1,
+        model="gpt-3.5-turbo-0125",
+        api_key=api_key,
+    )
+
+    st.session_state["memory"] = ConversationBufferMemory(
+        llm=memory_llm,
+        max_token_limit=150,
+        memory_key="history",
+        return_messages=True,
+    )
+    return st.session_state["memory"]
 
 def save_memory(input, output):
     memory.save_context({"input": input}, {"output": output})
@@ -119,15 +131,7 @@ if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
 if "memory" not in st.session_state:
-    st.session_state["memory"] = ConversationBufferMemory(
-        llm=memory_llm,
-        max_token_limit=150,
-        memory_key="history",
-        return_messages=True,
-    )
-
-memory = st.session_state["memory"]
-
+    st.session_state["memory"] = ""
 
 st.title("Document GPT")
 
@@ -147,22 +151,28 @@ with st.sidebar:
     )
 
 if file:
-    retriever = embed_file(file)
-    send_message("How can I help you?", "ai", save=False)
-    paint_history()
-    answer = st.chat_input("Ask anything about your file....")
-    if answer:
-        send_message(answer, "human", True)
-        chain = (
-            {
-                "context": retriever | RunnableLambda(format_doc),
-                "history": RunnableLambda(load_memory),
-                "question": RunnablePassthrough(),
-            }
-            | prompt
-            | llm
-        )
-        with st.chat_message("ai"):
-            invoke_chain(answer)
+    if not llm_api.startswith("sk-"):
+        st.warning("Please enter your OpenAI Key!", icon="⚠️")
+    else:
+        llm = generate_llm(llm_api)
+        memory = generate_memory_llm(llm_api)
+
+        retriever = embed_file(file)
+        send_message("How can I help you?", "ai", save=False)
+        paint_history()
+        answer = st.chat_input("Ask anything about your file....")
+        if answer:
+            send_message(answer, "human", True)
+            chain = (
+                {
+                    "context": retriever | RunnableLambda(format_doc),
+                    "history": RunnableLambda(load_memory),
+                    "question": RunnablePassthrough(),
+                }
+                | prompt
+                | llm
+            )
+            with st.chat_message("ai"):
+                invoke_chain(answer)
 else:
     st.session_state["messages"] = []

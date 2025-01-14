@@ -12,6 +12,7 @@ from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
 
 nltk.download('punkt_tab')
+nltk.download('averaged_perceptron_tagger_eng')
 
 class ChatCallbackHandler(BaseCallbackHandler):
     def __init__(self):

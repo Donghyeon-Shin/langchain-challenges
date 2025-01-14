@@ -97,9 +97,9 @@ def send_message(message, role, save=True):
 @st.cache_resource(show_spinner="Embedding file...")
 def embed_file(file):
 
-    if os.path.exists("./.cache/files"):
+    if not os.path.exists("./.cache/files"):
         os.makedirs("./.cache/files")
-    if os.path.exists("./.cache/embeddings"):
+    if not os.path.exists("./.cache/embeddings"):
         os.makedirs("./.cache/embeddings")
     file_name = file.name
     file_path = f"./.cache/files/{file_name}"

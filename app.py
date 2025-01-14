@@ -1,6 +1,5 @@
 import streamlit as st
 import os
-import nltk
 from langchain.storage import LocalFileStore
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -12,6 +11,7 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
 
+
 class ChatCallbackHandler(BaseCallbackHandler):
     def __init__(self):
         self.response = ""
@@ -21,7 +21,6 @@ class ChatCallbackHandler(BaseCallbackHandler):
 
     def on_llm_end(self, *arg, **kwargs):
         save_message(self.response, "ai")
-        self.response = ""
 
     def on_llm_new_token(self, token, *arg, **kwargs):
         self.response += token
@@ -32,7 +31,6 @@ if "openai_api" not in st.session_state:
     st.session_state["openai_api"] = ""
 
 
-@st.cache_resource(show_spinner="LLM 연결중(1)...")
 def generate_llm(api_key):
     llm = ChatOpenAI(
         temperature=0.1,
@@ -43,7 +41,6 @@ def generate_llm(api_key):
     )
     return llm
 
-@st.cache_resource(show_spinner="LLM 연결중(2)...")
 def generate_memory_llm(api_key):
     memory_llm = ChatOpenAI(
         temperature=0.1,
@@ -51,13 +48,7 @@ def generate_memory_llm(api_key):
         api_key=api_key,
     )
 
-    st.session_state["memory"] = ConversationBufferMemory(
-        llm=memory_llm,
-        max_token_limit=150,
-        memory_key="history",
-        return_messages=True,
-    )
-    return st.session_state["memory"]
+    return memory_llm
 
 def save_memory(input, output):
     memory.save_context({"input": input}, {"output": output})
@@ -71,14 +62,14 @@ def format_doc(document):
     return "\n\n".join(doc.page_content for doc in document)
 
 
-def invoke_chain(question):
+def invoke_chain(chain, question):
     result = chain.invoke(question).content
     save_memory(question, result)
 
 
 def paint_history():
     for message in st.session_state["messages"]:
-        send_message(message["message"], message["role"], False)
+        send_message(message["message"], message["role"], save=False)
 
 
 def save_message(message, role):
@@ -164,8 +155,15 @@ if file:
     else:
         try:
             llm = generate_llm(llm_api)
-            memory = generate_memory_llm(llm_api)
-
+            memory_llm =generate_memory_llm(llm_api)
+            if st.session_state["memory"] == "":
+                st.session_state["memory"] = ConversationBufferMemory(
+                    llm=memory_llm,
+                    max_token_limit=150,
+                    memory_key="history",
+                    return_messages=True,
+                )
+            memory = st.session_state["memory"]
             retriever = embed_file(file, llm_api)
             send_message("How can I help you?", "ai", save=False)
             paint_history()
@@ -182,9 +180,11 @@ if file:
                     | llm
                 )
                 with st.chat_message("ai"):
-                    invoke_chain(answer)
+                    invoke_chain(chain, answer)
         except Exception as e:
             st.warning(f"Error : {e}", icon="⚠️")
 else:
     st.session_state["messages"] = []
     st.session_state["memory"] = ""
+
+

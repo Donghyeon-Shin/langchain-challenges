@@ -12,9 +12,6 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
 
-nltk.download('punkt_tab')
-nltk.download('averaged_perceptron_tagger_eng')
-
 class ChatCallbackHandler(BaseCallbackHandler):
     def __init__(self):
         self.response = ""
@@ -106,7 +103,6 @@ def embed_file(file, openai_key):
     file_content = file.read()
     with open(file_path, "wb") as f:
         f.write(file_content)
-    st.write("Success1")
     loader = UnstructuredFileLoader(file_path)
     splitter = CharacterTextSplitter.from_tiktoken_encoder(
         separator="\n",
@@ -114,13 +110,10 @@ def embed_file(file, openai_key):
         chunk_overlap=50,
     )
     cache_dir = LocalFileStore(f"./.cache/embeddings/{file_name}")
-    st.write("Success2")
     docs = loader.load_and_split(text_splitter=splitter)
-    st.write("Success3")
     embedder = OpenAIEmbeddings(api_key=openai_key)
     cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
     vectorStore = FAISS.from_documents(docs, cache_embedder)
-    st.write("Success4")
     return vectorStore.as_retriever()
 
 

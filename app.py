@@ -1,15 +1,15 @@
 import streamlit as st
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain.chat_models.openai import ChatOpenAI
+from langchain.embeddings import OpenAIEmbeddings
 from langchain.storage import LocalFileStore
 from langchain.embeddings import CacheBackedEmbeddings
-from langchain_community.vectorstores import FAISS
-from langchain_community.document_loaders import UnstructuredFileLoader
+from langchain.vectorstores import FAISS
+from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
-
 
 class ChatCallbackHandler(BaseCallbackHandler):
     def __init__(self):

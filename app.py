@@ -1,4 +1,5 @@
 import streamlit as st
+import nltk
 from langchain.storage import LocalFileStore
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -9,6 +10,8 @@ from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain.callbacks.base import BaseCallbackHandler
+
+nltk.download('punkt_tab')
 
 class ChatCallbackHandler(BaseCallbackHandler):
     def __init__(self):
@@ -96,17 +99,20 @@ def embed_file(file):
     file_content = file.read()
     with open(file_path, "wb") as f:
         f.write(file_content)
-    st.write("Success")
-    # loader = UnstructuredFileLoader(file_path)
-    # splitter = CharacterTextSplitter.from_tiktoken_encoder(
-    #     separator="\n",
-    #     chunk_size=600,
-    #     chunk_overlap=50,
-    # )
-    # docs = loader.load_and_split(text_splitter=splitter)
-    # embedder = OpenAIEmbeddings()
-    # vectorStore = FAISS.from_documents(docs, embedder)
-    # return vectorStore.as_retriever()
+    st.write("Success1")
+    loader = UnstructuredFileLoader(file_path)
+    splitter = CharacterTextSplitter.from_tiktoken_encoder(
+        separator="\n",
+        chunk_size=600,
+        chunk_overlap=50,
+    )
+    st.write("Success2")
+    docs = loader.load_and_split(text_splitter=splitter)
+    st.write("Success3")
+    embedder = OpenAIEmbeddings()
+    vectorStore = FAISS.from_documents(docs, embedder)
+    st.write("Success4")
+    return vectorStore.as_retriever()
 
 
 prompt = ChatPromptTemplate.from_messages(

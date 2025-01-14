@@ -92,7 +92,7 @@ def send_message(message, role, save=True):
 @st.cache_resource(show_spinner="Embedding file...")
 def embed_file(file):
     file_name = file.name
-    file_path = f"./.cache/files/{file_name}"
+    file_path = f"./{file_name}"
     file_content = file.read()
     with open(file_path, "wb") as f:
         f.write(file_content)
@@ -103,10 +103,8 @@ def embed_file(file):
         chunk_overlap=50,
     )
     docs = loader.load_and_split(text_splitter=splitter)
-    cache_dir = LocalFileStore("./.cache/embeddings")
     embedder = OpenAIEmbeddings()
-    cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
-    vectorStore = FAISS.from_documents(docs, cache_embedder)
+    vectorStore = FAISS.from_documents(docs, embedder)
     return vectorStore.as_retriever()
 
 

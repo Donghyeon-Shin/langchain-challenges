@@ -21,6 +21,7 @@ class ChatCallbackHandler(BaseCallbackHandler):
 
     def on_llm_end(self, *arg, **kwargs):
         save_message(self.response, "ai")
+        self.response = ""
 
     def on_llm_new_token(self, token, *arg, **kwargs):
         self.response += token

@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 import nltk
 from langchain.storage import LocalFileStore
 from langchain.embeddings import CacheBackedEmbeddings
@@ -95,8 +96,13 @@ def send_message(message, role, save=True):
 
 @st.cache_resource(show_spinner="Embedding file...")
 def embed_file(file):
+
+    if os.path.exists("./.cache/files"):
+        os.makedirs("./.cache/files")
+    if os.path.exists("./.cache/embeddings"):
+        os.makedirs("./.cache/embeddings")
     file_name = file.name
-    file_path = f"./{file_name}"
+    file_path = f"./.cache/files/{file_name}"
     file_content = file.read()
     with open(file_path, "wb") as f:
         f.write(file_content)
@@ -107,11 +113,13 @@ def embed_file(file):
         chunk_size=600,
         chunk_overlap=50,
     )
+    cache_dir = LocalFileStore(f"./.cache/embeddings/{file_name}")
     st.write("Success2")
     docs = loader.load_and_split(text_splitter=splitter)
     st.write("Success3")
     embedder = OpenAIEmbeddings()
-    vectorStore = FAISS.from_documents(docs, embedder)
+    cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
+    vectorStore = FAISS.from_documents(docs, cache_embedder)
     st.write("Success4")
     return vectorStore.as_retriever()
 

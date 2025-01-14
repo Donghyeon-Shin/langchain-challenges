@@ -96,16 +96,17 @@ def embed_file(file):
     file_content = file.read()
     with open(file_path, "wb") as f:
         f.write(file_content)
-    loader = UnstructuredFileLoader(file_path)
-    splitter = CharacterTextSplitter.from_tiktoken_encoder(
-        separator="\n",
-        chunk_size=600,
-        chunk_overlap=50,
-    )
-    docs = loader.load_and_split(text_splitter=splitter)
-    embedder = OpenAIEmbeddings()
-    vectorStore = FAISS.from_documents(docs, embedder)
-    return vectorStore.as_retriever()
+    st.write("Success")
+    # loader = UnstructuredFileLoader(file_path)
+    # splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    #     separator="\n",
+    #     chunk_size=600,
+    #     chunk_overlap=50,
+    # )
+    # docs = loader.load_and_split(text_splitter=splitter)
+    # embedder = OpenAIEmbeddings()
+    # vectorStore = FAISS.from_documents(docs, embedder)
+    # return vectorStore.as_retriever()
 
 
 prompt = ChatPromptTemplate.from_messages(

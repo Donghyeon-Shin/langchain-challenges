@@ -95,7 +95,7 @@ def send_message(message, role, save=True):
 
 
 @st.cache_resource(show_spinner="Embedding file...")
-def embed_file(file):
+def embed_file(file, openai_key):
 
     if not os.path.exists("./.cache/files"):
         os.makedirs("./.cache/files")
@@ -117,7 +117,7 @@ def embed_file(file):
     st.write("Success2")
     docs = loader.load_and_split(text_splitter=splitter)
     st.write("Success3")
-    embedder = OpenAIEmbeddings()
+    embedder = OpenAIEmbeddings(api_key=openai_key)
     cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
     vectorStore = FAISS.from_documents(docs, cache_embedder)
     st.write("Success4")
@@ -171,7 +171,7 @@ if file:
         llm = generate_llm(llm_api)
         memory = generate_memory_llm(llm_api)
 
-        retriever = embed_file(file)
+        retriever = embed_file(file, llm_api)
         send_message("How can I help you?", "ai", save=False)
         paint_history()
         answer = st.chat_input("Ask anything about your file....")

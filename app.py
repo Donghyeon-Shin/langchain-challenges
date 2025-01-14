@@ -161,25 +161,28 @@ if file:
     if not llm_api.startswith("sk-"):
         st.warning("Please enter your OpenAI Key!", icon="⚠️")
     else:
-        llm = generate_llm(llm_api)
-        memory = generate_memory_llm(llm_api)
+        try:
+            llm = generate_llm(llm_api)
+            memory = generate_memory_llm(llm_api)
 
-        retriever = embed_file(file, llm_api)
-        send_message("How can I help you?", "ai", save=False)
-        paint_history()
-        answer = st.chat_input("Ask anything about your file....")
-        if answer:
-            send_message(answer, "human", True)
-            chain = (
-                {
-                    "context": retriever | RunnableLambda(format_doc),
-                    "history": RunnableLambda(load_memory),
-                    "question": RunnablePassthrough(),
-                }
-                | prompt
-                | llm
-            )
-            with st.chat_message("ai"):
-                invoke_chain(answer)
+            retriever = embed_file(file, llm_api)
+            send_message("How can I help you?", "ai", save=False)
+            paint_history()
+            answer = st.chat_input("Ask anything about your file....")
+            if answer:
+                send_message(answer, "human", True)
+                chain = (
+                    {
+                        "context": retriever | RunnableLambda(format_doc),
+                        "history": RunnableLambda(load_memory),
+                        "question": RunnablePassthrough(),
+                    }
+                    | prompt
+                    | llm
+                )
+                with st.chat_message("ai"):
+                    invoke_chain(answer)
+        except Exception as e:
+            st.warning(f"Error : {e}", icon="⚠️")
 else:
     st.session_state["messages"] = []

@@ -185,7 +185,6 @@ python-magic-bin @ git+https://github.com/julian-r/python-magic.git@6029e2d43ce0
 python-oxmsg==0.0.1
 pytube==15.0.0
 pytz==2024.2
-pywin32==308
 PyYAML==6.0.2
 pyzmq==26.2.0
 RapidFuzz==3.11.0

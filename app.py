@@ -146,7 +146,7 @@ with st.sidebar:
         type=["txt", "pdf", "docx"],
     )
 
-if file and st.session_state["openai_api"] != "":
+if file:
     retriever = embed_file(file)
     send_message("How can I help you?", "ai", save=False)
     paint_history()

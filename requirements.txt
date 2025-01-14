@@ -181,7 +181,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 python-iso639==2024.10.22
 python-magic==0.4.27
-python-magic-bin==0.4.14
+python-magic-bin @ git+https://github.com/julian-r/python-magic.git@6029e2d43ce0ee9f268c1f112c70e5417493190f
 python-oxmsg==0.0.1
 pytube==15.0.0
 pytz==2024.2

@@ -186,3 +186,4 @@ if file:
             st.warning(f"Error : {e}", icon="⚠️")
 else:
     st.session_state["messages"] = []
+    st.session_state["memory"] = ""

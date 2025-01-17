@@ -120,7 +120,7 @@ def get_quiz_json(_llm_api, _docs, difficulty):
 @st.dialog("View Git repo & QuizGPT Code")
 def view_code_info():
     st.write("Git repo \n\n https://github.com/Donghyeon-Shin/langchain-challenges")
-    st.write("QuizGPT Code \n\n kk")
+    st.write("QuizGPT Code \n\n https://github.com/Donghyeon-Shin/langchain-challenges/blob/master/pages/QuizGPT.py")
 
 
 if not "start_status" in st.session_state:

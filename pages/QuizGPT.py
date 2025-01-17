@@ -94,7 +94,7 @@ def search_wiki(topic):
 def run_quiz_chain(llm_api, docs, difficulty):
     llm = ChatOpenAI(
         temperature=0.1,
-        model="gpt-4o-mini",
+        model="gpt-3.5-turbo-0125",
         api_key=llm_api,
     ).bind(
         function_call={
@@ -186,8 +186,15 @@ else:
         with st.form("quiz_form"):
             correct_cnt = 0
             questions = st.session_state["quiz_json"]["questions"]
+
             for question in questions:
+                question["question"]
                 st.write(question["question"])
+
+                # Remove (o)
+                for answer in question["answers"]:
+                    answer["answer"] = answer["answer"].replace("(o)", "")
+
                 value = st.radio(
                     "Select an answer",
                     [answer["answer"] for answer in question["answers"]],

@@ -53,7 +53,8 @@ quiz_prompt = ChatPromptTemplate.from_messages(
             Based ONLY on the following context make 10 questions to test the user's knowledge about the text.
             Each question should have 4 answer, three of them must be incorrect and one should be correct.
             The problem is that there are two versions that are difficult and easy and they must be presented at the difficulty level desired by the user.
-
+            You should MAKE 10 Questoins
+            
             Use (o) to signal the correct answer.
 
             Question examples
@@ -116,9 +117,12 @@ def get_quiz_json(_llm_api, _docs, difficulty):
     quiz_json = json.loads(response.additional_kwargs["function_call"]["arguments"])
     return quiz_json
 
-@st.dialog("view Git repo & QuizGPT Code")
+
+@st.dialog("View Git repo & QuizGPT Code")
 def view_code_info():
-    st.write("INFO")
+    st.write("https://github.com/Donghyeon-Shin/langchain-challenges")
+    st.write("")
+
 
 if not "start_status" in st.session_state:
     st.session_state["start_status"] = False
@@ -196,8 +200,7 @@ else:
                 else:
                     st.error("Wrong")
 
-            if correct_cnt == 10:
+            if correct_cnt == len(questions):
                 st.balloons()
                 st.toast("You are perfect!", icon="🎉")
-
             st.form_submit_button("Submit")

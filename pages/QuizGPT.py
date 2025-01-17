@@ -188,7 +188,6 @@ else:
             questions = st.session_state["quiz_json"]["questions"]
 
             for question in questions:
-                question["question"]
                 st.write(question["question"])
 
                 # Remove (o)

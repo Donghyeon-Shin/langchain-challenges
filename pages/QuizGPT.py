@@ -4,8 +4,6 @@ import json
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain_community.retrievers import WikipediaRetriever
-from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
-
 
 format_function = {
     "name": "formatting_quiz",
@@ -96,7 +94,7 @@ def search_wiki(topic):
 def run_quiz_chain(llm_api, docs, difficulty):
     llm = ChatOpenAI(
         temperature=0.1,
-        model="gpt-3.5-turbo-0125",
+        model="gpt-4o-mini",
         api_key=llm_api,
     ).bind(
         function_call={

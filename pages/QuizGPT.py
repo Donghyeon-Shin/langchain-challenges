@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 import json
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
@@ -120,8 +121,8 @@ def get_quiz_json(_llm_api, _docs, difficulty):
 
 @st.dialog("View Git repo & QuizGPT Code")
 def view_code_info():
-    st.write("https://github.com/Donghyeon-Shin/langchain-challenges")
-    st.write("")
+    st.write("Git repo \n\n https://github.com/Donghyeon-Shin/langchain-challenges")
+    st.write("QuizGPT Code \n\n kk")
 
 
 if not "start_status" in st.session_state:
@@ -197,10 +198,14 @@ else:
                 if {"answer": value, "correct": True} in question["answers"]:
                     correct_cnt = correct_cnt + 1
                     st.success("Correct!")
-                else:
+                elif value != None:
                     st.error("Wrong")
 
             if correct_cnt == len(questions):
+                st.session_state["start_status"] = False
                 st.balloons()
                 st.toast("You are perfect!", icon="🎉")
+                time.sleep(2)
+                st.rerun()
+
             st.form_submit_button("Submit")

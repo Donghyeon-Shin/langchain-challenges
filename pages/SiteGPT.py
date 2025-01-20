@@ -9,6 +9,7 @@ from langchain_community.document_loaders import SitemapLoader
 from langchain_community.vectorstores import FAISS
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
+from memory_profiler import profile
 
 
 class ChatCallbackHandler(BaseCallbackHandler):
@@ -36,7 +37,6 @@ def generate_llm(openAI_KEY):
     )
     return llm
 
-
 @st.cache_resource(show_spinner="Search Site Information...")
 def get_retriever(url, openAI_KEY):
     try:
@@ -45,7 +45,7 @@ def get_retriever(url, openAI_KEY):
         url_name = (
             str(url).replace("https://", "").replace(".", "").replace("/sitemapxml", "")
         )
-        # cache_dir = LocalFileStore(f"./.cache/embeddings/{url_name}")
+        cache_dir = LocalFileStore(f"./.cache/embeddings/{url_name}")
 
         loader = SitemapLoader(url)
         loader.requests_per_second = 5
@@ -53,14 +53,12 @@ def get_retriever(url, openAI_KEY):
             chunk_size=1000,
             chunk_overlap=200,
         )
-        # docs = loader.load()
-        # docs = loader.load_and_split(text_splitter=splitter)
-        # embedder = OpenAIEmbeddings(api_key=openAI_KEY)
-        # cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
-        # vectorStore = FAISS.from_documents(docs, cache_embedder)
+        docs = loader.load_and_split(text_splitter=splitter)
+        embedder = OpenAIEmbeddings(api_key=openAI_KEY)
+        cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
+        vectorStore = FAISS.from_documents(docs, cache_embedder)
 
-        # return vectorStore.as_retriever()
-        return "1"
+        return vectorStore.as_retriever()
     except Exception as e:
         st.error("Failed to Load Site Information")
         return "Error"

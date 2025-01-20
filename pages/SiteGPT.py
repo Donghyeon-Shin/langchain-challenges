@@ -37,7 +37,7 @@ def generate_llm(openAI_KEY):
     return llm
 
 
-# @st.cache_resource(show_spinner="Search Site Information...")
+@st.cache_resource(show_spinner="Search Site Information...")
 def get_retriever(url, openAI_KEY):
     try:
         if not os.path.exists("./.cache/embeddings"):

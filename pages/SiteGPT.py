@@ -54,11 +54,12 @@ def get_retriever(url, openAI_KEY):
             chunk_overlap=200,
         )
         docs = loader.load_and_split(text_splitter=splitter)
-        embedder = OpenAIEmbeddings(api_key=openAI_KEY)
-        cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
-        vectorStore = FAISS.from_documents(docs, cache_embedder)
+        return docs
+        # embedder = OpenAIEmbeddings(api_key=openAI_KEY)
+        # cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
+        # vectorStore = FAISS.from_documents(docs, cache_embedder)
 
-        return vectorStore.as_retriever()
+        # return vectorStore.as_retriever()
     except Exception as e:
         st.error("Failed to Load Site Information")
         return "Error"
@@ -243,8 +244,8 @@ if llm_api.startswith("sk-") and site_Url.endswith(".xml"):
             chain = Chain()
             send_message(question, "human")
             chain.generate_llm(OpenAI_KEY=llm_api)
-            with st.chat_message("ai"):
-                chain.get_final_answer(question)
+            # with st.chat_message("ai"):
+            #     chain.get_final_answer(question)
 
 else:
     st.session_state["messages"] = []

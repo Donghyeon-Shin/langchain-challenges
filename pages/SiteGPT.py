@@ -53,14 +53,14 @@ def get_retriever(url, openAI_KEY):
             chunk_size=1000,
             chunk_overlap=200,
         )
-        docs = loader.load()
+        # docs = loader.load()
         # docs = loader.load_and_split(text_splitter=splitter)
         # embedder = OpenAIEmbeddings(api_key=openAI_KEY)
         # cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
         # vectorStore = FAISS.from_documents(docs, cache_embedder)
 
         # return vectorStore.as_retriever()
-        return docs
+        return "1"
     except Exception as e:
         st.error("Failed to Load Site Information")
         return "Error"

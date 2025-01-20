@@ -9,7 +9,6 @@ from langchain_community.document_loaders import SitemapLoader
 from langchain_community.vectorstores import FAISS
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
-from memory_profiler import profile
 
 
 class ChatCallbackHandler(BaseCallbackHandler):

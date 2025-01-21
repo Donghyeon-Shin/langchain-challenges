@@ -56,6 +56,9 @@ def get_retriever(url, openAI_KEY):
         page = []
         for doc in loader.lazy_load():
             page.append(doc)
+            if len(page) >= 200:
+                break
+
 
         docs = splitter.split_documents(page)
         embedder = OpenAIEmbeddings(api_key=openAI_KEY)

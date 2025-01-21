@@ -56,7 +56,7 @@ def get_retriever(url, openAI_KEY):
         page = []
         for doc in loader.lazy_load():
             page.append(doc)
-            if len(page) >= 200:
+            if len(page) >= 2:
                 break
 
 

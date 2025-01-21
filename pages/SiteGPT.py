@@ -39,29 +39,29 @@ def generate_llm(openAI_KEY):
 @st.cache_resource(show_spinner="Search Site Information...")
 def get_retriever(url, openAI_KEY):
     try:
-        # if not os.path.exists("./.cache/embeddings"):
-        #     os.makedirs("./.cache/embeddings")
-        # url_name = (
-        #     str(url).replace("https://", "").replace(".", "").replace("/sitemapxml", "")
-        # )
-        # cache_dir = LocalFileStore(f"./.cache/embeddings/{url_name}")
-        # splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-        #     chunk_size=1000,
-        #     chunk_overlap=200,
-        # )
+        if not os.path.exists("./.cache/embeddings"):
+            os.makedirs("./.cache/embeddings")
+        url_name = (
+            str(url).replace("https://", "").replace(".", "").replace("/sitemapxml", "")
+        )
+        cache_dir = LocalFileStore(f"./.cache/embeddings/{url_name}")
+        splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+            chunk_size=1000,
+            chunk_overlap=200,
+        )
 
-        loader = SitemapLoader(web_path=url)
+        loader = SitemapLoader(web_path=url, max_depth = 1)
         loader.requests_per_second = 2
         page = []
         for doc in loader.lazy_load():
             page.append(doc)
 
-        # docs = splitter.split_documents(page)
-        # embedder = OpenAIEmbeddings(api_key=openAI_KEY)
-        # cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
-        # vectorStore = FAISS.from_documents(docs, cache_embedder)
+        docs = splitter.split_documents(page)
+        embedder = OpenAIEmbeddings(api_key=openAI_KEY)
+        cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
+        vectorStore = FAISS.from_documents(docs, cache_embedder)
 
-        # return vectorStore.as_retriever()
+        return vectorStore.as_retriever()
     except Exception as e:
         st.error("Failed to Load Site Information")
         return "Error"

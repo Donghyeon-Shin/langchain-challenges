@@ -5,7 +5,7 @@ from langchain.embeddings import CacheBackedEmbeddings
 from langchain.prompts import ChatPromptTemplate
 from langchain.storage import LocalFileStore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import SitemapLoader
+from langchain_community.document_loaders.sitemap import SitemapLoader
 from langchain_community.vectorstores import FAISS
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
@@ -48,11 +48,16 @@ def get_retriever(url, openAI_KEY):
 
         loader = SitemapLoader(url)
         loader.requests_per_second = 5
+        ## loader.requests_kwargs = {"verify": False}
         splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
             chunk_size=1000,
             chunk_overlap=200,
         )
-        docs = loader.load_and_split(text_splitter=splitter)
+        page = []
+        for doc in loader.lazy_load():
+            page.append(doc)
+
+        docs = splitter.split_documents(page)
         embedder = OpenAIEmbeddings(api_key=openAI_KEY)
         cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
         vectorStore = FAISS.from_documents(docs, cache_embedder)

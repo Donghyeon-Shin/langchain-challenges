@@ -1,3 +1,0 @@
-[server]
-maxUploadSize = 100000
-headless = true

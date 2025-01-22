@@ -49,14 +49,19 @@ def get_retriever(url, openAI_KEY):
             chunk_size=1000,
             chunk_overlap=200,
         )
-
-        loader = SitemapLoader(web_path=url, max_depth = 1)
-        loader.requests_per_second = 2
-        page = []
-        for doc in loader.lazy_load():
-            page.append(doc)
-
-        docs = splitter.split_documents(page)
+        loader = SitemapLoader(
+            url,
+            # filter_urls=[],
+            filter_urls=(
+                [
+                    r"https:\/\/developers.cloudflare.com/ai-gateway.*",
+                    r"https:\/\/developers.cloudflare.com/vectorize.*",
+                    r"https:\/\/developers.cloudflare.com/workers-ai.*",
+                ]
+            ),
+        )
+        loader.requests_per_second = 5
+        docs = loader.load_and_split(splitter)
         embedder = OpenAIEmbeddings(api_key=openAI_KEY)
         cache_embedder = CacheBackedEmbeddings.from_bytes_store(embedder, cache_dir)
         vectorStore = FAISS.from_documents(docs, cache_embedder)
